@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Q & A</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=East+Sea+Dokdo&display=swap" rel="stylesheet">
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        :root {
+            --header-height: calc(100vw * 62 / 619);
+            --icon-size: calc(100vw * 62 / 619 * 0.5);
+        }
+        body {
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+        }
+        .header-section {
+            width: 100%;
+            margin: 0;
+            position: relative;
+        }
+        .header-section img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        
+        /* 햄버거 메뉴 스타일 */
+        .hamburger-menu {
+            position: absolute;
+            top: 0;
+            right: 0;
+            z-index: 1000;
+            height: var(--header-height);
+            width: var(--header-height);
+        }
+        .hamburger-btn {
+            background: rgba(255, 255, 255, 0);
+            border: none;
+            border-radius: 8px;
+            padding: 0;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .hamburger-icon {
+            width: var(--icon-size);
+            height: var(--icon-size);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 15%;
+        }
+        .hamburger-icon span {
+            display: block;
+            width: 100%;
+            height: 12%;
+            background-color: #ffffff;
+            margin: 0;
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 60px;
+            right: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            min-width: 200px;
+            overflow: hidden;
+        }
+        .dropdown-menu.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .dropdown-item {
+            display: block;
+            padding: 12px 20px;
+            color: #333;
+            text-decoration: none;
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+            font-size: 1.1rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+        .dropdown-item:hover {
+            background-color: rgba(0, 123, 255, 0.1);
+            color: #007bff;
+        }
+        .dropdown-item.active {
+            background-color: rgba(0, 123, 255, 0.2);
+            color: #007bff;
+            font-weight: bold;
+        }
+        
+        .background-section {
+            background-image: url('background.PNG');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            width: 100%;
+            position: relative;
+            margin: 0;
+            min-height: 100vh;
+        }
+        .title-section {
+            text-align: center;
+            padding: 1rem 0 0 0;
+        }
+        .title-section h2 {
+            margin: 0;
+            font-family: 'East Sea Dokdo', cursive;
+            font-size: 2.5rem;
+        }
+        .background-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.7);
+        }
+        .background-section > * {
+            position: relative;
+            z-index: 1;
+        }
+        .main-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .card {
+            background-color: rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+        }
+        .search-container {
+            margin-bottom: 2rem;
+        }
+        .search-input {
+            background-color: rgba(255, 255, 255, 0.9) !important;
+            border: 2px solid rgba(0, 123, 255, 0.3);
+            border-radius: 25px;
+            padding: 12px 20px;
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+            font-size: 1rem;
+        }
+        .search-input:focus {
+            background-color: rgba(255, 255, 255, 1) !important;
+            border-color: #007bff;
+            box-shadow: 0 0 10px rgba(0, 123, 255, 0.3);
+        }
+        
+        /* Q&A 카드 스타일 */
+        .qa-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(240, 248, 255, 0.9) 100%);
+            border: 1px solid rgba(0, 123, 255, 0.2);
+            border-radius: 15px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        .qa-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+        .qa-card.hidden {
+            display: none;
+        }
+        .qa-content {
+            padding: 25px;
+        }
+        .question-section {
+            margin-bottom: 20px;
+        }
+        .question-label {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #007bff;
+            margin-bottom: 8px;
+        }
+        .question-text {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+            font-size: 1.1rem;
+            color: #333;
+            line-height: 1.6;
+            font-weight: 500;
+        }
+        .answer-section {
+            border-top: 1px solid rgba(0, 123, 255, 0.2);
+            padding-top: 20px;
+        }
+        .answer-label {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #28a745;
+            margin-bottom: 8px;
+        }
+        .answer-text {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+            font-size: 1rem;
+            color: #666;
+            line-height: 1.6;
+        }
+        .no-results {
+            text-align: center;
+            padding: 3rem 0;
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+            font-size: 1.1rem;
+            color: #666;
+        }
+        .loading {
+            text-align: center;
+            padding: 3rem 0;
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+            font-size: 1.1rem;
+            color: #007bff;
+        }
+    </style>
+</head>
+<body>
+    <div class="header-section">
+        <img src="header.PNG" alt="헤더 이미지">
+        <div class="hamburger-menu">
+            <button class="hamburger-btn" onclick="toggleMenu()">
+                <div class="hamburger-icon">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </button>
+            <div class="dropdown-menu" id="dropdownMenu">
+                <a href="index.html" class="dropdown-item">단서 카드 세팅</a>
+                <a href="place-action.html" class="dropdown-item">장소 행동 설명</a>
+                <a href="qa.html" class="dropdown-item active">Q & A</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="background-section">
+        <div class="title-section">
+            <h2>Q & A</h2>
+        </div>
+        
+        <div class="main-container">
+            <!-- 검색창 -->
+            <div class="search-container">
+                <input type="text" class="form-control search-input" id="searchInput" placeholder="질문이나 답변 내용을 검색하세요...">
+            </div>
+            
+            <!-- 로딩 메시지 -->
+            <div id="loading" class="loading">
+                데이터를 불러오는 중...
+            </div>
+            
+            <!-- Q&A 카드 목록 -->
+            <div id="qaCards">
+                <!-- 카드들이 JavaScript로 동적 생성됩니다 -->
+            </div>
+            
+            <!-- 검색 결과 없음 메시지 -->
+            <div id="noResults" class="no-results" style="display: none;">
+                검색 결과가 없습니다.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Q&A 데이터를 저장할 배열
+        let qaData = [];
+
+        // 페이지 로드시 Excel 파일에서 데이터 로드
+        document.addEventListener('DOMContentLoaded', function() {
+            // 일단 기본 데이터로 테스트
+            qaData = [
+                {
+                    question: "테스트 질문입니다",
+                    answer: "테스트 답변입니다"
+                }
+            ];
+            displayQA(qaData);
+            document.getElementById('loading').style.display = 'none';
+            
+            // Excel 파일 로드 시도
+            loadQAFromExcel();
+            setupSearch();
+        });
+
+        // Excel 파일에서 Q&A 데이터 로드
+        async function loadQAFromExcel() {
+            try {
+                console.log('Excel 파일 로딩 시작...');
+                const response = await fetch('qa_db.xlsx');
+                console.log('fetch 완료:', response.status);
+                
+                const arrayBuffer = await response.arrayBuffer();
+                console.log('arrayBuffer 크기:', arrayBuffer.byteLength);
+                
+                const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+                console.log('워크북 시트 목록:', workbook.SheetNames);
+                
+                // 첫 번째 시트 가져오기
+                const firstSheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[firstSheetName];
+                
+                // JSON으로 변환
+                const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                console.log('Excel 원본 데이터:', jsonData);
+                
+                // Q-A 쌍으로 데이터 처리
+                qaData = [];
+                let currentQuestion = null;
+                
+                for (let i = 0; i < jsonData.length; i++) {
+                    const row = jsonData[i];
+                    console.log(`행 ${i}:`, row);
+                    
+                    if (!row[0] || !row[1]) {
+                        console.log(`행 ${i} 건너뛰기: 빈 데이터`);
+                        continue;
+                    }
+                    
+                    const type = row[0].toString().trim().toUpperCase();
+                    const content = row[1].toString().trim();
+                    console.log(`행 ${i} - 타입: ${type}, 내용: ${content}`);
+                    
+                    if (type === 'Q' || type === 'Q.') {
+                        currentQuestion = content;
+                        console.log('질문 저장:', currentQuestion);
+                    } else if ((type === 'A' || type === 'A.') && currentQuestion) {
+                        qaData.push({
+                            question: currentQuestion,
+                            answer: content
+                        });
+                        console.log('Q&A 쌍 추가:', currentQuestion, content);
+                        currentQuestion = null;
+                    }
+                }
+                
+                console.log('최종 qaData:', qaData);
+                
+                // 로딩 메시지 숨기기
+                document.getElementById('loading').style.display = 'none';
+                
+                // Q&A 카드 표시
+                displayQA(qaData);
+                
+            } catch (error) {
+                console.error('Excel 파일 로딩 실패:', error);
+                document.getElementById('loading').innerHTML = 'Excel 파일을 불러오는데 실패했습니다: ' + error.message;
+                
+                // 실패시 기본 데이터 사용
+                qaData = [
+                    {
+                        question: "게임을 시작할 때 가장 먼저 해야 하는 것은 무엇인가요?",
+                        answer: "게임 시작 시 각 플레이어는 돈 3원, 담배 2개, 신문 1개를 받고 창경원에서 시작합니다. 첫 번째 날 오전에는 반드시 경찰서에 가서 사건 브리핑을 받아야 합니다. 그 후 단서 수집을 시작하면 됩니다."
+                    }
+                ];
+                document.getElementById('loading').style.display = 'none';
+                displayQA(qaData);
+            }
+        }
+
+        // Q&A 카드 표시 함수
+        function displayQA(qaToShow) {
+            const container = document.getElementById('qaCards');
+            const noResults = document.getElementById('noResults');
+            
+            if (qaToShow.length === 0) {
+                container.innerHTML = '';
+                noResults.style.display = 'block';
+                return;
+            }
+            
+            noResults.style.display = 'none';
+            container.innerHTML = qaToShow.map(qa => `
+                <div class="qa-card">
+                    <div class="qa-content">
+                        <div class="question-section">
+                            <div class="question-label">Q.</div>
+                            <div class="question-text">${qa.question}</div>
+                        </div>
+                        <div class="answer-section">
+                            <div class="answer-label">A.</div>
+                            <div class="answer-text">${qa.answer}</div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 검색 기능 설정
+        function setupSearch() {
+            const searchInput = document.getElementById('searchInput');
+            
+            searchInput.addEventListener('input', function(e) {
+                const searchTerm = e.target.value.toLowerCase().trim();
+                
+                if (searchTerm === '') {
+                    displayQA(qaData);
+                } else {
+                    const filteredQA = qaData.filter(qa => 
+                        qa.question.toLowerCase().includes(searchTerm) ||
+                        qa.answer.toLowerCase().includes(searchTerm)
+                    );
+                    displayQA(filteredQA);
+                }
+            });
+        }
+
+        // 햄버거 메뉴 토글
+        function toggleMenu() {
+            const dropdown = document.getElementById('dropdownMenu');
+            dropdown.classList.toggle('show');
+        }
+
+        // 메뉴 외부 클릭 시 닫기
+        document.addEventListener('click', function(event) {
+            const hamburgerMenu = document.querySelector('.hamburger-menu');
+            const dropdown = document.getElementById('dropdownMenu');
+            
+            if (!hamburgerMenu.contains(event.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+    </script>
+</body>
+</html> 

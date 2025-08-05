@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>장소 행동 설명</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=East+Sea+Dokdo&display=swap" rel="stylesheet">
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+    <style>
+        :root {
+            --header-height: calc(100vw * 62 / 619);
+            --icon-size: calc(100vw * 62 / 619 * 0.5);
+        }
+        body {
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+        }
+        .header-section {
+            width: 100%;
+            margin: 0;
+            position: relative;
+        }
+        .header-section img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        
+        /* 햄버거 메뉴 스타일 */
+        .hamburger-menu {
+            position: absolute;
+            top: 0;
+            right: 0;
+            z-index: 1000;
+            height: var(--header-height);
+            width: var(--header-height);
+        }
+        .hamburger-btn {
+            background: rgba(255, 255, 255, 0);
+            border: none;
+            border-radius: 8px;
+            padding: 0;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .hamburger-icon {
+            width: var(--icon-size);
+            height: var(--icon-size);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 15%;
+        }
+        .hamburger-icon span {
+            display: block;
+            width: 100%;
+            height: 12%;
+            background-color: #ffffff;
+            margin: 0;
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 60px;
+            right: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            min-width: 200px;
+            overflow: hidden;
+        }
+        .dropdown-menu.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .dropdown-item {
+            display: block;
+            padding: 12px 20px;
+            color: #333;
+            text-decoration: none;
+            font-family: 'East Sea Dokdo', cursive;
+            font-size: 1.3rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+        .dropdown-item:hover {
+            background-color: rgba(0, 123, 255, 0.1);
+            color: #007bff;
+        }
+        .dropdown-item.active {
+            background-color: rgba(0, 123, 255, 0.2);
+            color: #007bff;
+            font-weight: bold;
+        }
+        
+        .background-section {
+            background-image: url('background.PNG');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            width: 100%;
+            position: relative;
+            margin: 0;
+            min-height: 100vh;
+        }
+        .title-section {
+            text-align: center;
+            padding: 1rem 0 0 0;
+        }
+        .title-section h2 {
+            margin: 0;
+            font-family: 'East Sea Dokdo', cursive;
+            font-size: 2.5rem;
+        }
+        .background-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.7);
+        }
+        .background-section > * {
+            position: relative;
+            z-index: 1;
+        }
+        .main-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .card {
+            background-color: rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+        }
+        .search-container {
+            margin-bottom: 2rem;
+        }
+        .search-input {
+            background-color: rgba(255, 255, 255, 0.9) !important;
+            border: 2px solid rgba(0, 123, 255, 0.3);
+            border-radius: 25px;
+            padding: 12px 20px;
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+            font-size: 1rem;
+        }
+        .search-input:focus {
+            background-color: rgba(255, 255, 255, 1) !important;
+            border-color: #007bff;
+            box-shadow: 0 0 10px rgba(0, 123, 255, 0.3);
+        }
+        
+        /* 장소 카드 스타일 */
+        .place-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(240, 248, 255, 0.9) 100%);
+            border: 1px solid rgba(0, 123, 255, 0.2);
+            border-radius: 15px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        .place-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+        .place-card.hidden {
+            display: none;
+        }
+        .place-content {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+        }
+        .place-thumbnail {
+            width: 120px;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-right: 20px;
+            border: 2px solid rgba(0, 123, 255, 0.2);
+        }
+        .place-info {
+            flex: 1;
+        }
+        .place-title {
+            font-family: 'East Sea Dokdo', cursive;
+            font-size: 1.8rem;
+            color: #333;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        .place-description {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+            font-size: 0.95rem;
+            color: #666;
+            line-height: 1.6;
+        }
+        .no-results {
+            text-align: center;
+            padding: 3rem 0;
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+            font-size: 1.1rem;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="header-section">
+        <img src="header.PNG" alt="헤더 이미지">
+        <div class="hamburger-menu">
+            <button class="hamburger-btn" onclick="toggleMenu()">
+                <div class="hamburger-icon">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </button>
+            <div class="dropdown-menu" id="dropdownMenu">
+                <a href="index.html" class="dropdown-item">단서 카드 세팅</a>
+                <a href="place-action.html" class="dropdown-item active">장소 행동 설명</a>
+                <a href="qa.html" class="dropdown-item">Q & A</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="background-section">
+        <div class="title-section">
+            <h2>장소 행동 설명</h2>
+        </div>
+        
+        <div class="main-container">
+            <!-- 검색창 -->
+            <div class="search-container">
+                <input type="text" class="form-control search-input" id="searchInput" placeholder="장소명을 검색하세요...">
+            </div>
+            
+            <!-- 장소 카드 목록 -->
+            <div id="placeCards">
+                <!-- 카드들이 JavaScript로 동적 생성됩니다 -->
+            </div>
+            
+            <!-- 검색 결과 없음 메시지 -->
+            <div id="noResults" class="no-results" style="display: none;">
+                검색 결과가 없습니다.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 장소 데이터 (가나다순으로 정렬)
+        const places = [
+            { name: '경성대학병원', image: 'img/경성대학병원.PNG', description: '1시간을 소모하여 단서카드 1장을 얻습니다.' },
+            { name: '경성담배', image: 'img/경성담배.PNG', description: '돈 1원으로 신문 1개를 구입하거나, 담배 1개를 구입합니다. 단, 신문 구입 시 하루 1회만 가능합니다.' },
+            { name: '경성역', image: 'img/경성역.PNG', description: '돈 1원으로 신문 1개를 구입합니다.<br>(하루 1회 제한)' },
+            { name: '경성우편국', image: 'img/경성우편국.PNG', description: '[모스부호카드 획득]<br>돈 3원으로 단서카드 1장을 얻습니다.' },
+            { name: '경성은행', image: 'img/경성은행.PNG', description: '1시간을 소모하여 돈 2원을 얻습니다.' },
+            { name: '경성호텔', image: 'img/경성호텔.PNG', description: '[모스부호카드 획득]<br>돈 3원으로 숙박할 수 있습니다. 즉시 식사 한 끼를 해결하고, 다음 날 경성호텔에서 일과를 시작합니다.' },
+            { name: '돌리마코대출', image: 'img/돌리마코대출.PNG', description: '돈 1원-5원을 대출하는 대신, 매일 일과 시작 시 대출액의 1/2(반내림)을 이자로 지불합니다. 4일차에는 원금과 이자를 모두 지불해야 합니다.' },
+            { name: '럭키당구장', image: 'img/럭키당구장.PNG', description: '믿음직한 직원 미나가 있는 곳입니다. 이벤트가 발생한다면 안심하고 방문하세요!' },
+            { name: '마포경찰서', image: 'img/마포경찰서.PNG', description: '담배 1개와 1시간을 소모하여 단서카드 1장을 얻습니다.' },
+            { name: '마포아편굴', image: 'img/마포아편굴.PNG', description: '마포아편굴에 방문하는 순간, 사용하지 않은 장소카드 1장을 덱 맨 밑으로 넣고 새로운 카드 1장을 뽑아 뒷면으로 배치합니다.' },
+            { name: '명동다방', image: 'img/명동다방.PNG', description: '[식사 해결 가능]<br>이벤트 중 정보원을 통해 관찰 카드를 얻을 수 있는 곳입니다.' },
+            { name: '불란서빵집', image: 'img/불란서빵집.PNG', description: '충실한 제빵사 송창희가 있는 곳입니다. 이벤트가 발생한다면 안심하고 방문하세요!' },
+            { name: '서대문역', image: 'img/서대문역.PNG', description: '돈 1원으로 신문 1개를 구입합니다.<br>(하루 1회 제한)' },
+            { name: '서촌륙거리책방', image: 'img/서촌륙거리책방.PNG', description: '[모스부호카드 획득]<br>서화점 주인은 언제나 당신을 반깁니다. 이벤트가 발생한다면 안심하고 방문하세요!' },
+            { name: '용산경찰서', image: 'img/용산경찰서.PNG', description: '담배 1개와 1시간을 소모하여 단서카드 1장을 얻습니다.' },
+            { name: '용산구락부', image: 'img/용산구락부.PNG', description: '[식사 해결 가능]<br>이벤트 중 정보원을 통해 관찰 카드를 얻을 수 있는 곳입니다.' },
+            { name: '용산도박장', image: 'img/용산도박장.PNG', description: '돈 1원과 30분을 소모하여, 홀 또는 짝을 선택합니다. 그 후 6면체 주사위 두 개를 굴려 그 합이 자신이 선택한 홀/짝이 맞다면 돈 2원을 획득합니다.' },
+            { name: '용산역', image: 'img/용산역.PNG', description: '돈 1원으로 신문 1개를 구입합니다.<br>(하루 1회 제한)' },
+            { name: '인력사무소', image: 'img/인력사무소.PNG', description: '담배 1개를 소모하여 장소카드 1장을 뽑아 뒷면으로 배치합니다.' },
+            { name: '전당포', image: 'img/전당포.PNG', description: '돈 2: 담배 2: 신문 2: 보석 1의 비율로 자유롭게 자원을 교환할 수 있습니다.' },
+            { name: '종로금은방', image: 'img/종로금은방.PNG', description: '돈 2원으로 보석 1개를 구입하거나, 보석 1개로 돈 2원을 받을 수 있습니다.' },
+            { name: '종로다방', image: 'img/종로다방.PNG', description: '[식사 해결 가능]<br>이벤트 중 정보원을 통해 관찰 카드를 얻을 수 있는 곳입니다.' },
+            { name: '종로시장', image: 'img/종로시장.PNG', description: '[식사 해결 가능]<br>보석 1개를 돈/담배/신문 중 2개를 골라 각각 1개씩으로 바꿀 수 있습니다.' },
+            { name: '청량리역', image: 'img/청량리역.PNG', description: '돈 1원으로 신문 1개를 구입합니다.<br>(하루 1회 제한)' },
+            { name: '창경원', image: 'img/창경원.PNG', description: '살인사건이 발생한 현장이자, 4일차에 반드시 복귀해야 하는 곳입니다.' }
+        ];
+
+        // 페이지 로드시 모든 카드 표시
+        document.addEventListener('DOMContentLoaded', function() {
+            displayPlaces(places);
+            setupSearch();
+        });
+
+        // 장소 카드 표시 함수
+        function displayPlaces(placesToShow) {
+            const container = document.getElementById('placeCards');
+            const noResults = document.getElementById('noResults');
+            
+            if (placesToShow.length === 0) {
+                container.innerHTML = '';
+                noResults.style.display = 'block';
+                return;
+            }
+            
+            noResults.style.display = 'none';
+            container.innerHTML = placesToShow.map(place => `
+                <div class="place-card">
+                    <div class="place-content">
+                        <img src="${place.image}" alt="${place.name}" class="place-thumbnail">
+                        <div class="place-info">
+                            <div class="place-title">${place.name}</div>
+                            <div class="place-description">${place.description}</div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 검색 기능 설정
+        function setupSearch() {
+            const searchInput = document.getElementById('searchInput');
+            
+            searchInput.addEventListener('input', function(e) {
+                const searchTerm = e.target.value.toLowerCase().trim();
+                
+                if (searchTerm === '') {
+                    displayPlaces(places);
+                } else {
+                    const filteredPlaces = places.filter(place => 
+                        place.name.toLowerCase().includes(searchTerm) ||
+                        place.description.toLowerCase().includes(searchTerm)
+                    );
+                    displayPlaces(filteredPlaces);
+                }
+            });
+        }
+
+        // 햄버거 메뉴 토글
+        function toggleMenu() {
+            const dropdown = document.getElementById('dropdownMenu');
+            dropdown.classList.toggle('show');
+        }
+
+        // 메뉴 외부 클릭 시 닫기
+        document.addEventListener('click', function(event) {
+            const hamburgerMenu = document.querySelector('.hamburger-menu');
+            const dropdown = document.getElementById('dropdownMenu');
+            
+            if (!hamburgerMenu.contains(event.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+    </script>
+</body>
+</html> 
